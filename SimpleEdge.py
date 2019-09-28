@@ -7,6 +7,7 @@
 #running time in the test for image of size (384,384) is around 40ms
 
 
+
 import cv2
 from numba import njit
 from scipy.signal import triang, convolve2d
@@ -30,9 +31,8 @@ def EdgeNMS(E,filter_2D):
     Oxx, _ = np.gradient(Ox, axis=(1,0), edge_order=2)
     Oxy, Oyy = np.gradient(Oy, axis=(1,0), edge_order=2)
     O = np.arctan(np.sign(-Oxy)*Oyy/(Oxx+1e-5)) % np.pi
-    
-    suppress=5 if max(E.shape)==384 else 3
-    E_nms = edgesNmsMex(E, O, 1, suppress, 1.01)
+
+    E_nms = edgesNmsMex(E, O, 1, 5, 1.01)
     return E_nms
 
 @njit
@@ -47,7 +47,6 @@ def interp(E, h, w, y, x):
 
 @njit
 def edgesNmsMex(E, O, r, s, m):
-    buffer=0.4
     EO=E.copy()
     h,w=E.shape
     for x in range(w):
@@ -65,10 +64,10 @@ def edgesNmsMex(E, O, r, s, m):
                         break
     for x in range(s):     #fix margins
         for y in range(h):
-            EO[y,x]*=(x+buffer)/(s+buffer)
-            EO[y,w-1-x]*=(x+buffer)/(s+buffer)
+            EO[y,x]*=x/s
+            EO[y,w-1-x]*=x/s
     for x in range(w):
         for y in range(s):
-            EO[y,x]*=(y+buffer)/(s+buffer)
-            EO[h-1-y,x]*=(y+buffer)/(s+buffer)
+            EO[y,x]*=y/s
+            EO[h-1-y,x]*=y/s
     return EO
