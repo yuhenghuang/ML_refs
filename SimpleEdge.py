@@ -1,9 +1,21 @@
+#Python version of SimpleEdge function
+#for postprocess of HED
+#the original function is in Matlab and can be found on
+#https://github.com/phillipi/pix2pix/blob/master/scripts/edges/PostprocessHED.m
+#there might be some problem with the 2D triangular filter (not tested)
+#defining the filter explicitly in main environment should not be of any problem
+#running time in the test for image of size (384,384) is around 40ms
+
+
 import cv2
 from numba import njit
 from scipy.signal import triang, convolve2d
 from skimage.morphology import remove_small_objects, skeletonize
 
-def simpleEdge(E1, filter_2D, threshold=25., small_edge=5):
+f1=triang(tri_size*2+1)/(tri_size+1)
+filter_2D=np.matmul(f1[:,np.newaxis],f1[None]) #2D filter in postprocessing
+
+def SimpleEdge(E1, filter_2D=filter_2D, threshold=25., small_edge=5):
     threshold/=255.
     E2=EdgeNMS(E1, filter_2D)
     E3=(E2>threshold)
