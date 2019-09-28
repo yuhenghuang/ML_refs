@@ -8,7 +8,6 @@
 
 
 
-import cv2
 from numba import njit
 from scipy.signal import triang, convolve2d
 from skimage.morphology import remove_small_objects, skeletonize
